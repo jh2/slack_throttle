@@ -7,19 +7,19 @@ defmodule Slack.Queue.Registry do
     GenServer.start_link(__MODULE__, :ok, name: name)
   end
 
-  def enqueue(server, token, fun) do
-    enqueue(server, token, :erlang, :apply, [fun, []])
+  def enqueue_cast(server, token, fun) do
+    enqueue_cast(server, token, :erlang, :apply, [fun, []])
   end
 
-  def enqueue(server, token, mod, fun, args) do
+  def enqueue_cast(server, token, mod, fun, args) do
     GenServer.cast(server, {:add, token, {mod, fun, args}})
   end
 
-  def enqueue_sync(server, token, fun) do
-    enqueue_sync(server, token, :erlang, :apply, [fun, []])
+  def enqueue_call(server, token, fun) do
+    enqueue_call(server, token, :erlang, :apply, [fun, []])
   end
 
-  def enqueue_sync(server, token, mod, fun, args) do
+  def enqueue_call(server, token, mod, fun, args) do
     GenServer.call(server, {:run, token, {mod, fun, args}},
       Application.get_env(:slack, :enqueue_sync_timeout))
   end
@@ -35,13 +35,13 @@ defmodule Slack.Queue.Registry do
 
   def handle_call({:run, token, fun}, _from, {queues, refs}) do
     {q, qs, refs} = get_or_create_queue(token, queues, refs)
-    res = Worker.enqueue_sync(q, fun)
+    res = Worker.enqueue_call(q, fun)
     {:reply, res, {qs, refs}}
   end
 
   def handle_cast({:add, token, fun}, {queues, refs}) do
     {q, qs, refs} = get_or_create_queue(token, queues, refs)
-    Worker.enqueue(q, fun)
+    Worker.enqueue_cast(q, fun)
     {:noreply, {qs, refs}}
   end
 

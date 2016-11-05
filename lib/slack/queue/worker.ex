@@ -1,5 +1,9 @@
 defmodule Slack.Queue.Worker do
   use GenServer
+  require Logger
+
+  @api_throttle Application.get_env(:slack, :api_throttle)
+  @idle 6
 
   def start_link do
     GenServer.start_link(__MODULE__, :ok)
@@ -8,38 +12,48 @@ defmodule Slack.Queue.Worker do
     GenServer.start_link(__MODULE__, :ok, name: name)
   end
 
-  def enqueue(server, fun) do
-    res = GenServer.cast(server, {:add, fun})
-    GenServer.cast(server, {:suspend, nil})
-    res
+  def enqueue_cast(server, fun) do
+    GenServer.cast(server, {:add, fun})
   end
 
-  def enqueue_sync(server, fun) do
-    res = GenServer.call(server, {:run, fun},
+  def enqueue_call(server, fun) do
+    GenServer.call(server, {:run, fun},
       Application.get_env(:slack, :enqueue_sync_timeout))
-    GenServer.cast(server, {:suspend, nil})
-    res
   end
 
 
 
   def init(:ok) do
-    {:ok, :ok}
+    state = {@idle, []}
+    Process.send_after(self, :work, @api_throttle)
+    {:ok, state}
   end
 
-  def handle_call({:run, {mod, fun, args}}, _from, state) do
+  def handle_call({:run, fun}, from, {ttl, q}) do
+    q = [{from, fun} | q]
+    {:noreply, {ttl, q}}
+  end
+
+  def handle_cast({:add, fun}, {ttl, q}) do
+    q = q ++ [{nil, fun}]
+    {:noreply, {ttl, q}}
+  end
+
+  def handle_info(:work, {0, []} = state), do: {:stop, :normal, state}
+  def handle_info(:work, {ttl, []}) do
+    Logger.info ":work [] ttl #{ttl}"
+    Process.send_after(self, :work, @api_throttle)
+    {:noreply, {ttl - 1, []}}
+  end
+  def handle_info(:work, {ttl, [h | t] = q}) do
+    Logger.debug ":work [#{Enum.count q}] ttl #{ttl}"
+
+    {from, {mod, fun, args}} = h
     res = :erlang.apply(mod, fun, args)
-    {:reply, res, state}
-  end
+    if from != nil, do: GenServer.reply(from, res)
 
-  def handle_cast({:add, {mod, fun, args}}, state) do
-    _res = :erlang.apply(mod, fun, args)
-    {:noreply, state}
-  end
-
-  def handle_cast({:suspend, _}, state) do
-    Process.sleep(Application.get_env(:slack, :api_throttle))
-    {:noreply, state}
+    Process.send_after(self, :work, @api_throttle)
+    {:noreply, {@idle, t}}
   end
 
 end

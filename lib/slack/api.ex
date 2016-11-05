@@ -4,7 +4,7 @@ defmodule Slack.API do
 
   def fetch(method, token, params) do
     params = Keyword.put(params, :token, token)
-    res = Registry.enqueue_sync(
+    res = Registry.enqueue_call(
       Registry, token,
       __MODULE__, :get!, [method, headers, [params: params]]
     )
