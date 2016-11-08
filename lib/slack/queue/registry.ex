@@ -3,6 +3,8 @@ defmodule Slack.Queue.Registry do
   alias Slack.Queue.{Supervisor, Worker}
   require Logger
 
+  @call_timeout Application.get_env(:slack, :enqueue_sync_timeout)
+
   def start_link(name) do
     GenServer.start_link(__MODULE__, :ok, name: name)
   end
@@ -20,8 +22,7 @@ defmodule Slack.Queue.Registry do
   end
 
   def enqueue_call(server, token, mod, fun, args) do
-    GenServer.call(server, {:run, token, {mod, fun, args}},
-      Application.get_env(:slack, :enqueue_sync_timeout))
+    GenServer.call(server, {:run, token, {mod, fun, args}}, @call_timeout)
   end
 
   def halt(server, token) do
