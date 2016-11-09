@@ -4,13 +4,10 @@ defmodule Slack.Queue.Worker do
 
   @api_throttle Application.get_env(:slack, :api_throttle)
   @call_timeout Application.get_env(:slack, :enqueue_sync_timeout)
-  @idle 6
+  @idle 1
 
   def start_link do
     GenServer.start_link(__MODULE__, :ok)
-  end
-  def start_link(name) do
-    GenServer.start_link(__MODULE__, :ok, name: name)
   end
 
   def enqueue_cast(server, fun) do
@@ -25,7 +22,7 @@ defmodule Slack.Queue.Worker do
 
   def init(:ok) do
     state = {@idle, []}
-    Process.send_after(self, :work, @api_throttle)
+    Process.send_after(self, :work, 10) # wait for initial job
     {:ok, state}
   end
 

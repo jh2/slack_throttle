@@ -25,10 +25,6 @@ defmodule Slack.Queue.Registry do
     GenServer.call(server, {:run, token, {mod, fun, args}}, @call_timeout)
   end
 
-  def halt(server, token) do
-    GenServer.cast(server, {:halt, token})
-  end
-
 
   def init(:ok) do
     {:ok, {%{}, %{}}}
@@ -43,13 +39,6 @@ defmodule Slack.Queue.Registry do
   def handle_cast({:add, token, fun}, {queues, refs}) do
     {q, qs, refs} = get_or_create_queue(token, queues, refs)
     Worker.enqueue_cast(q, fun)
-    {:noreply, {qs, refs}}
-  end
-
-  def handle_cast({:halt, token}, {queues, refs}) do
-    {q, qs, refs} = get_or_create_queue(token, queues, refs)
-    Logger.info "killing process #{inspect q}"
-    Process.exit(q, :kill)
     {:noreply, {qs, refs}}
   end
 

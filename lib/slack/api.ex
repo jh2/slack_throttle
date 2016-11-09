@@ -1,11 +1,23 @@
 defmodule Slack.API do
   use HTTPoison.Base
-  alias Slack.Queue.Registry
 
-  def fetch(method, token, params) do
+  def test(token, params \\ [], type \\ :call) do
+    fetch(token, "api.test", params, type)
+  end
+
+
+  def fetch(token, method, params, :call) do
     params = Keyword.put(params, :token, token)
-    res = Registry.enqueue_call(
-      Registry, token,
+    res = Slack.Queue.enqueue_call(
+      token,
+      __MODULE__, :get!, [method, headers, [params: params]]
+    )
+    res.body
+  end
+  def fetch(token, method, params, :cast) do
+    params = Keyword.put(params, :token, token)
+    res = Slack.Queue.enqueue_cast(
+      token,
       __MODULE__, :get!, [method, headers, [params: params]]
     )
     res.body
