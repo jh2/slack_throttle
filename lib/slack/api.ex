@@ -5,6 +5,10 @@ defmodule Slack.API do
     fetch(token, "api.test", params, type)
   end
 
+  def test2 do
+    "test2"
+  end
+
 
   def fetch(token, method, params, :call) do
     params = Keyword.put(params, :token, token)
@@ -16,11 +20,10 @@ defmodule Slack.API do
   end
   def fetch(token, method, params, :cast) do
     params = Keyword.put(params, :token, token)
-    res = Slack.Queue.enqueue_cast(
+    Slack.Queue.enqueue_cast(
       token,
       __MODULE__, :get!, [method, headers, [params: params]]
     )
-    res.body
   end
 
   def process_url(url) do

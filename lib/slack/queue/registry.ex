@@ -22,7 +22,9 @@ defmodule Slack.Queue.Registry do
   end
 
   def enqueue_call(server, token, mod, fun, args) do
-    GenServer.call(server, {:run, token, {mod, fun, args}}, @call_timeout)
+    Logger.debug "call_timeout #{inspect @call_timeout}"
+    "asdf"
+    # GenServer.call(server, {:run, token, {mod, fun, args}}, @call_timeout)
   end
 
 
@@ -43,27 +45,27 @@ defmodule Slack.Queue.Registry do
   end
 
   def handle_info({:DOWN, ref, :process, _pid, _reason}, {queues, refs}) do
-    IO.puts("handle_info down")
+    Logger.debug "handle_info down"
     {token, refs} = Map.pop(refs, ref)
     queues = Map.delete(queues, token)
     {:noreply, {queues, refs}}
   end
 
   def handle_info(msg, state) do
-    IO.puts("handle_info #{inspect msg}")
+    Logger.debug "handle_info #{inspect msg}"
     {:noreply, state}
   end
 
   defp get_or_create_queue(token, queues, refs) do
     if Map.has_key?(queues, token) do
       q = Map.fetch!(queues, token)
-      Logger.info "found running queue proccess for token #{token}"
+      Logger.debug "found running queue proccess for token #{token}"
       {q, queues, refs}
     else
       {:ok, q} = Supervisor.start_queue
       ref = Process.monitor(q)
       refs = Map.put(refs, ref, token)
-      Logger.info "creating new queue proccess for token #{token}"
+      Logger.debug "creating new queue proccess for token #{token}"
       qs = Map.put(queues, token, q)
       {q, qs, refs}
     end

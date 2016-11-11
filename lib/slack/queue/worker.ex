@@ -4,7 +4,7 @@ defmodule Slack.Queue.Worker do
 
   @api_throttle Application.get_env(:slack, :api_throttle)
   @call_timeout Application.get_env(:slack, :enqueue_sync_timeout)
-  @idle 1
+  @idle 10
 
   def start_link do
     GenServer.start_link(__MODULE__, :ok)
@@ -39,6 +39,7 @@ defmodule Slack.Queue.Worker do
   def handle_info(:work, {0, []} = state), do: {:stop, :normal, state}
   def handle_info(:work, {ttl, []}) do
     Logger.debug ":work [] ttl #{ttl}"
+    # Logger.debug "api_throttle #{inspect @api_throttle}"
     Process.send_after(self, :work, @api_throttle)
     {:noreply, {ttl - 1, []}}
   end
