@@ -9,22 +9,24 @@ defmodule Slack.Queue.Registry do
     GenServer.start_link(__MODULE__, :ok, name: name)
   end
 
+  # unused, see Lunch.Queue
   def enqueue_cast(server, token, fun) do
     enqueue_cast(server, token, :erlang, :apply, [fun, []])
   end
 
+  # unused
   def enqueue_cast(server, token, mod, fun, args) do
     GenServer.cast(server, {:add, token, {mod, fun, args}})
   end
 
+  # unused
   def enqueue_call(server, token, fun) do
     enqueue_call(server, token, :erlang, :apply, [fun, []])
   end
 
+  # unused
   def enqueue_call(server, token, mod, fun, args) do
-    Logger.debug "call_timeout #{inspect @call_timeout}"
-    "asdf"
-    # GenServer.call(server, {:run, token, {mod, fun, args}}, @call_timeout)
+    GenServer.call(server, {:run, token, {mod, fun, args}}, @call_timeout)
   end
 
 

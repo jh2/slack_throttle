@@ -33,7 +33,6 @@ defmodule Slack.API do
   def process_response_body(body) do
     body
     |> Poison.decode!
-    |> Enum.map(fn ({k, v}) -> {String.to_atom(k), v} end)
   end
 
   def headers do
