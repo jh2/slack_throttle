@@ -22,7 +22,7 @@ defmodule Slack.Queue.Worker do
 
   def init(:ok) do
     state = {@idle, []}
-    Process.send_after(self, :work, 10) # wait for initial job
+    Process.send_after(self, :work, 50) # wait a few ms for initial job
     {:ok, state}
   end
 
