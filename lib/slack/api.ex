@@ -1,18 +1,11 @@
 defmodule Slack.API do
   use HTTPoison.Base
 
-  def test(token, params \\ [], type \\ :call) do
-    fetch(token, "api.test", params, type)
-  end
-
-  def test2 do
-    "test2"
-  end
-
-
   def fetch(token, method, params, :call) do
-    params = Map.to_list(params)
-    params = Keyword.put(params, :token, token)
+    params = params
+    |> Map.to_list
+    |> Keyword.put(:token, token)
+
     res = Slack.Queue.enqueue_call(
       token,
       __MODULE__, :get!, [method, headers, [params: params]]
@@ -20,8 +13,10 @@ defmodule Slack.API do
     res.body
   end
   def fetch(token, method, params, :cast) do
-    params = Map.to_list(params)
-    params = Keyword.put(params, :token, token)
+    params = params
+    |> Map.to_list
+    |> Keyword.put(:token, token)
+
     Slack.Queue.enqueue_cast(
       token,
       __MODULE__, :get!, [method, headers, [params: params]]
