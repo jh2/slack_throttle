@@ -21,17 +21,19 @@ defmodule Slack.Queue.Worker do
 
 
   def init(:ok) do
-    state = {@idle, []}
-    Process.send_after(self, :work, 50) # wait a few ms for initial job
+    state = {-1, []}
+    # Process.send_after(self, :work, 50) # wait a few ms for initial job
     {:ok, state}
   end
 
   def handle_call({:run, fun}, from, {ttl, q}) do
+    ttl = set_ttl_if_inactive(ttl)
     q = q ++ [{from, fun}] |> Enum.sort(&jobsort/2)
     {:noreply, {ttl, q}}
   end
 
   def handle_cast({:add, fun}, {ttl, q}) do
+    ttl = set_ttl_if_inactive(ttl)
     q = q ++ [{nil, fun}]
     {:noreply, {ttl, q}}
   end
@@ -52,6 +54,9 @@ defmodule Slack.Queue.Worker do
     Process.send_after(self, :work, @api_throttle)
     {:noreply, {@idle, t}}
   end
+
+  defp set_ttl_if_inactive(-1), do: send(self, :work) && @idle
+  defp set_ttl_if_inactive(ttl), do: ttl
 
   defp jobsort({nil, _fun_a}, {nil, _fun_b}), do: true # cast cast
   defp jobsort({_from_a, _fun_a}, {nil, _fun_b}), do: true # call cast
