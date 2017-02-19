@@ -1,4 +1,6 @@
 defmodule Slack.Queue do
+  @moduledoc false
+
   require Logger
 
   @call_timeout Application.get_env(:slack, :enqueue_sync_timeout)

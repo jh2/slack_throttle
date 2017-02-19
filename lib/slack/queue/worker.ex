@@ -1,4 +1,6 @@
 defmodule Slack.Queue.Worker do
+  @moduledoc false
+
   use GenServer
   require Logger
 
@@ -22,7 +24,6 @@ defmodule Slack.Queue.Worker do
 
   def init(:ok) do
     state = {-1, []}
-    # Process.send_after(self, :work, 50) # wait a few ms for initial job
     {:ok, state}
   end
 

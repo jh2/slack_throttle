@@ -1,4 +1,6 @@
 defmodule Slack.Queue.Supervisor do
+  @moduledoc false
+
   use Supervisor
 
   @name Slack.Queue.Supervisor

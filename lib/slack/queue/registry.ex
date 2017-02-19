@@ -1,4 +1,6 @@
 defmodule Slack.Queue.Registry do
+  @moduledoc false
+
   use GenServer
   alias Slack.Queue.{Supervisor, Worker}
   require Logger

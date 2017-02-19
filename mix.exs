@@ -15,7 +15,8 @@ defmodule Slack.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     [applications: [:logger, :httpoison],
-     mod: {Slack, []}]
+     mod: {Slack, []},
+     env: [api_throttle: 1000, enqueue_sync_timeout: 20000]]
   end
 
   # Dependencies can be Hex packages:
@@ -31,7 +32,8 @@ defmodule Slack.Mixfile do
     [
       {:poison, "~> 2.0"},
       {:httpoison, "~> 0.10.0"},
-      {:credo, "~> 0.4", only: [:dev, :text]}
+      {:credo, "~> 0.4", only: [:dev, :test]},
+      {:ex_doc, "~> 0.14", only: :dev}
     ]
   end
 end
