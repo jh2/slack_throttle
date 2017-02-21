@@ -1,22 +1,52 @@
 defmodule Slack.API do
   @moduledoc """
-  Main module, provides functions for all the Slack Web API methods.
+  This library provides wrapper functions for requests to the Slack Web API and
+  takes care of rate limits for you.
+
+  ## Usage
 
   Look up the API method you want to use in the
-  [Slack documentation](https://api.slack.com/methods). Then replace the
-  dots in the method name with underscores and you have the function:
+  [Slack documentation](https://api.slack.com/methods). Function names are
+  method names with dots replaced by underscores:
 
-      iex> Slack.API.channels_info("some token", %{channel: "C123456"})
+      # method: channels.info
+      iex> SlackApp.API.channels_info("some token", %{channel: "C123456"})
       %{"ok" => true, "channel" => %{"id" => "C123456", ...}}
+
+  > Replacing dots by underscores is actually exactly what the compiler does.
+  > By the magic of meta programming all these functions are created
+  > dynamically.
 
   If you don't care about the response, e.g. when broadcasting a message,
   use `:cast` as the third argument:
 
-      iex> Slack.API.chat_postMessage("some token", params, :cast)
+      # method: chat.postMessage
+      iex> SlackApp.API.chat_postMessage("some token", params, :cast)
       :ok
 
-  Broadcasts are executed asynchronously in another process and return `:ok`
-  immediately.
+  Broadcasts are executed asynchronously and return `:ok` immediately.
+
+  ## Rate Limits
+
+  The Slack Web API is subject to
+  [rate limiting](https://api.slack.com/docs/rate-limits).  Requests are only
+  allowed at a rate of one per second on a per-access-token basis.
+
+  To comply with these restrictions, the library queues all function calls
+  (grouped by access token) and executes them at the given rate.  These queues
+  are priority queues: Regular blocking function calls have higher priority than
+  asynchronous broadcasts (the `:cast` ones).
+
+  ## Configuration
+
+  The API throttle rate `:api_throttle` can be configured as well as the
+  timeout for blocking function calls `:enqueue_sync_timeout`:
+
+      config :slack_app,
+        api_throttle: 1000, # in milliseconds
+        enqueue_sync_timeout: 20000 # in milliseconds
+
+
 
   """
 
