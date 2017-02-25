@@ -1,7 +1,7 @@
 defmodule Slack.API do
   @moduledoc """
   This library provides wrapper functions for requests to the Slack Web API and
-  takes care of rate limits for you.
+  takes care of rate limits.
 
   ## Usage
 

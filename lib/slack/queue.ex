@@ -6,7 +6,7 @@ defmodule Slack.Queue do
   @call_timeout Application.get_env(:slack, :enqueue_sync_timeout)
 
   def enqueue_cast(token, fun) do
-    enqueue_cast(token, :erlang, :apply, [fun, []])
+    enqueue_cast(token, Kernel, :apply, [fun, []])
   end
 
   def enqueue_cast(token, mod, fun, args) do
@@ -14,7 +14,7 @@ defmodule Slack.Queue do
   end
 
   def enqueue_call(token, fun) do
-    enqueue_call(token, :erlang, :apply, [fun, []])
+    enqueue_call(token, Kernel, :apply, [fun, []])
   end
 
   def enqueue_call(token, mod, fun, args) do

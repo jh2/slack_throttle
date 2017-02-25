@@ -49,7 +49,7 @@ defmodule Slack.Queue.Worker do
     Logger.debug ":work [#{Enum.count q}] ttl #{ttl}"
 
     {from, {mod, fun, args}} = h
-    res = :erlang.apply(mod, fun, args)
+    res = apply(mod, fun, args)
     if from != nil, do: GenServer.reply(from, res)
 
     Process.send_after(self, :work, @api_throttle)

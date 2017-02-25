@@ -10,7 +10,7 @@ use Mix.Config
 
 config :slack,
   enqueue_sync_timeout: 20000, # in milliseconds
-  api_throttle: 4000 # in milliseconds, slack rate limit
+  api_throttle: 1000 # in milliseconds, slack rate limit
 
 # You can configure for your application as:
 #
@@ -32,3 +32,5 @@ config :slack,
 # here (which is why it is important to import them last).
 #
 #     import_config "#{Mix.env}.exs"
+
+config :logger, level: (if Mix.env == "dev", do: :debug, else: :error)
