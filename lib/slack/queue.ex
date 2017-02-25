@@ -2,15 +2,14 @@ defmodule Slack.Queue do
   @moduledoc false
 
   require Logger
-
-  @call_timeout Application.get_env(:slack, :enqueue_sync_timeout)
+  alias Slack.Queue.Registry
 
   def enqueue_cast(token, fun) do
     enqueue_cast(token, Kernel, :apply, [fun, []])
   end
 
   def enqueue_cast(token, mod, fun, args) do
-    GenServer.cast(Slack.Queue.Registry, {:add, token, {mod, fun, args}})
+    Registry.enqueue_cast(Registry, token, mod, fun, args)
   end
 
   def enqueue_call(token, fun) do
@@ -18,8 +17,7 @@ defmodule Slack.Queue do
   end
 
   def enqueue_call(token, mod, fun, args) do
-    GenServer.call(Slack.Queue.Registry, {:run, token, {mod, fun, args}},
-      @call_timeout)
+    Registry.enqueue_call(Registry, token, mod, fun, args)
   end
 
 end

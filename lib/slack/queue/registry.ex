@@ -11,6 +11,15 @@ defmodule Slack.Queue.Registry do
     GenServer.start_link(__MODULE__, :ok, name: name)
   end
 
+  def enqueue_cast(server, token, mod, fun, args) do
+    GenServer.cast(server, {:add, token, {mod, fun, args}})
+  end
+
+  def enqueue_call(server, token, mod, fun, args) do
+    GenServer.call(server, {:run, token, {mod, fun, args}}, @call_timeout)
+  end
+
+
 
   def init(:ok) do
     {:ok, {%{}, %{}}}
