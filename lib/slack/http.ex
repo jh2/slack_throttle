@@ -2,13 +2,14 @@ defmodule Slack.HTTP do
   @moduledoc false
 
   use HTTPoison.Base
+  alias Slack.Queue
 
   def fetch(token, method, params, :call) do
     params = params
     |> Map.to_list
     |> Keyword.put(:token, token)
 
-    res = Slack.Queue.enqueue_call(
+    res = Queue.enqueue_call(
       token,
       __MODULE__, :get!, [method, headers, [params: params]]
     )
@@ -19,7 +20,7 @@ defmodule Slack.HTTP do
     |> Map.to_list
     |> Keyword.put(:token, token)
 
-    Slack.Queue.enqueue_cast(
+    Queue.enqueue_cast(
       token,
       __MODULE__, :get!, [method, headers, [params: params]]
     )

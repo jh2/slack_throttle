@@ -50,6 +50,8 @@ defmodule Slack.API do
 
   """
 
+  alias Slack.HTTP
+
   [
     "auth.revoke",
     "auth.test",
@@ -188,7 +190,7 @@ defmodule Slack.API do
     @spec unquote(fun)(binary, %{atom => any}, :call | :cast) ::
       %{binary => any} | :ok
     def unquote(fun)(token, params \\ %{}, type \\ :call) do
-      Slack.HTTP.fetch(token, unquote(method), params, type)
+      HTTP.fetch(token, unquote(method), params, type)
     end
   end)
 
@@ -205,8 +207,7 @@ defmodule Slack.API do
     @spec unquote(fun)(%{atom => any}) :: %{binary => any}
     def unquote(fun)(params \\ %{}) do
       params = Map.to_list(params)
-      res = Slack.HTTP.get!(unquote(method), Slack.HTTP.headers,
-        [params: params])
+      res = HTTP.get!(unquote(method), HTTP.headers, [params: params])
       res.body
     end
   end)
