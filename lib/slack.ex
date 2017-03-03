@@ -1,4 +1,4 @@
-defmodule Slack do
+defmodule SlackThrottle do
   @moduledoc false
 
   use Application
@@ -10,15 +10,15 @@ defmodule Slack do
 
     # Define workers and child supervisors to be supervised
     children = [
-      # Starts a worker by calling: Slack.Worker.start_link(arg1, arg2, arg3)
-      # worker(Slack.Worker, [arg1, arg2, arg3]),
-      worker(Slack.Queue.Registry, [Slack.Queue.Registry]),
-      supervisor(Slack.Queue.Supervisor, [])
+      # Starts a worker by calling: SlackThrottle.Worker.start_link(arg1, arg2, arg3)
+      # worker(SlackThrottle.Worker, [arg1, arg2, arg3]),
+      worker(SlackThrottle.Queue.Registry, [SlackThrottle.Queue.Registry]),
+      supervisor(SlackThrottle.Queue.Supervisor, [])
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
     # for other strategies and supported options
-    opts = [strategy: :one_for_one, name: Slack.Supervisor]
+    opts = [strategy: :one_for_one, name: SlackThrottle.Supervisor]
     Supervisor.start_link(children, opts)
   end
 end

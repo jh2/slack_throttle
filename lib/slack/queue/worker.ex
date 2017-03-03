@@ -1,11 +1,11 @@
-defmodule Slack.Queue.Worker do
+defmodule SlackThrottle.Queue.Worker do
   @moduledoc false
 
   use GenServer
   require Logger
 
-  @api_throttle Application.get_env(:slack, :api_throttle)
-  @call_timeout Application.get_env(:slack, :enqueue_sync_timeout)
+  @api_throttle Application.get_env(:slack_throttle, :api_throttle)
+  @call_timeout Application.get_env(:slack_throttle, :enqueue_sync_timeout)
   @idle 1
 
   def start_link do

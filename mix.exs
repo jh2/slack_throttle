@@ -1,8 +1,8 @@
-defmodule Slack.Mixfile do
+defmodule SlackThrottle.Mixfile do
   use Mix.Project
 
   def project do
-    [app: :slack,
+    [app: :slack_throttle,
      version: "0.1.0",
      elixir: "~> 1.3",
      build_embedded: Mix.env == :prod,
@@ -15,7 +15,7 @@ defmodule Slack.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     [applications: [:logger, :httpoison],
-     mod: {Slack, []},
+     mod: {SlackThrottle, []},
      env: [api_throttle: 1000, enqueue_sync_timeout: 20000]]
   end
 

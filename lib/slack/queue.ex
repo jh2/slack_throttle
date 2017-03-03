@@ -1,8 +1,8 @@
-defmodule Slack.Queue do
+defmodule SlackThrottle.Queue do
   @moduledoc false
 
   require Logger
-  alias Slack.Queue.Registry
+  alias SlackThrottle.Queue.Registry
 
   def enqueue_cast(token, fun) do
     enqueue_cast(token, Kernel, :apply, [fun, []])

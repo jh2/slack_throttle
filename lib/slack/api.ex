@@ -1,7 +1,7 @@
-defmodule Slack.API do
+defmodule SlackThrottle.API do
   @moduledoc """
-  This library provides wrapper functions for requests to the Slack Web API and
-  takes care of rate limits.
+  This library provides wrapper functions for the Slack Web API and
+  automatically throttles all requests to it according to API rate limits.
 
   ## Usage
 
@@ -10,18 +10,14 @@ defmodule Slack.API do
   method names with dots replaced by underscores:
 
       # method: channels.info
-      iex> SlackApp.API.channels_info("some token", %{channel: "C123456"})
+      iex> SlackThrottle.API.channels_info("some token", %{channel: "C123456"})
       %{"ok" => true, "channel" => %{"id" => "C123456", ...}}
-
-  > Replacing dots by underscores is actually exactly what the compiler does.
-  > By the magic of meta programming all these functions are created
-  > dynamically.
 
   If you don't care about the response, e.g. when broadcasting a message,
   use `:cast` as the third argument:
 
       # method: chat.postMessage
-      iex> SlackApp.API.chat_postMessage("some token", params, :cast)
+      iex> SlackThrottle.API.chat_postMessage("some token", params, :cast)
       :ok
 
   Broadcasts are executed asynchronously and return `:ok` immediately.
@@ -42,7 +38,7 @@ defmodule Slack.API do
   The API throttle rate `:api_throttle` can be configured as well as the
   timeout for blocking function calls `:enqueue_sync_timeout`:
 
-      config :slack_app,
+      config :slack_throttle,
         api_throttle: 1000, # in milliseconds
         enqueue_sync_timeout: 20000 # in milliseconds
 
@@ -50,7 +46,7 @@ defmodule Slack.API do
 
   """
 
-  alias Slack.HTTP
+  alias SlackThrottle.HTTP
 
   [
     "auth.revoke",

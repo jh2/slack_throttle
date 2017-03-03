@@ -1,8 +1,8 @@
-defmodule Slack.HTTP do
+defmodule SlackThrottle.HTTP do
   @moduledoc false
 
   use HTTPoison.Base
-  alias Slack.Queue
+  alias SlackThrottle.Queue
 
   def fetch(token, method, params, :call) do
     params = params

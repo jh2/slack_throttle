@@ -1,9 +1,9 @@
-defmodule Slack.Queue.Supervisor do
+defmodule SlackThrottle.Queue.Supervisor do
   @moduledoc false
 
   use Supervisor
 
-  @name Slack.Queue.Supervisor
+  @name SlackThrottle.Queue.Supervisor
 
   def start_link do
     Supervisor.start_link(__MODULE__, :ok, name: @name)
@@ -15,7 +15,7 @@ defmodule Slack.Queue.Supervisor do
 
   def init(:ok) do
     children = [
-      worker(Slack.Queue.Worker, [], restart: :temporary)
+      worker(SlackThrottle.Queue.Worker, [], restart: :temporary)
     ]
     supervise(children, strategy: :simple_one_for_one)
   end

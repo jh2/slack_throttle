@@ -8,17 +8,17 @@ use Mix.Config
 # if you want to provide default values for your application for
 # 3rd-party users, it should be done in your "mix.exs" file.
 
-config :slack,
+config :slack_throttle,
   enqueue_sync_timeout: 20000, # in milliseconds
   api_throttle: 1000 # in milliseconds, slack rate limit
 
 # You can configure for your application as:
 #
-#     config :slack, key: :value
+#     config :slack_throttle, key: :value
 #
 # And access this configuration in your application as:
 #
-#     Application.get_env(:slack, :key)
+#     Application.get_env(:slack_throttle, :key)
 #
 # Or configure a 3rd-party app:
 #

@@ -1,11 +1,11 @@
-defmodule Slack.Queue.Registry do
+defmodule SlackThrottle.Queue.Registry do
   @moduledoc false
 
   use GenServer
-  alias Slack.Queue.{Supervisor, Worker}
+  alias SlackThrottle.Queue.{Supervisor, Worker}
   require Logger
 
-  @call_timeout Application.get_env(:slack, :enqueue_sync_timeout)
+  @call_timeout Application.get_env(:slack_throttle, :enqueue_sync_timeout)
 
   def start_link(name) do
     GenServer.start_link(__MODULE__, :ok, name: name)

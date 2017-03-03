@@ -1,8 +1,8 @@
-defmodule SlackTest do
+defmodule SlackThrottleTest do
   use ExUnit.Case
-  alias Slack.Queue
+  alias SlackThrottle.{Queue, API}
 
-  @api_throttle Application.get_env(:slack, :api_throttle)
+  @api_throttle Application.get_env(:slack_throttle, :api_throttle)
   @request_time 100
 
   test "first queued job starts immediately" do
@@ -45,18 +45,18 @@ defmodule SlackTest do
   end
 
   test "api test response with request params" do
-    res = Slack.API.api_test(%{key: "value"})
+    res = API.api_test(%{key: "value"})
     assert res["ok"] == true
     assert res["args"]["key"] == "value"
   end
 
   test "api auth responds and fails" do
-    res = Slack.API.auth_test(random_token)
+    res = API.auth_test(random_token)
     assert res["ok"] == false
   end
 
   test "api broadcast returns ok" do
-    res = Slack.API.auth_test(random_token, %{}, :cast)
+    res = API.auth_test(random_token, %{}, :cast)
     assert res == :ok
   end
 
