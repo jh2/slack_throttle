@@ -3,7 +3,7 @@ defmodule SlackThrottle.Mixfile do
 
   def project do
     [app: :slack_throttle,
-     version: "0.1.0",
+     version: "0.2.0",
      elixir: "~> 1.4",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
@@ -29,7 +29,8 @@ defmodule SlackThrottle.Mixfile do
     [name: :slack_throttle,
      files: ["lib", "mix.exs", "README*", "LICENSE*"],
      maintainers: ["Johannes Hofmann"],
-     licenses: ["MIT"]]
+     licenses: ["MIT"],
+     links: %{"GitHub" => "https://github.com/jh2/slack_throttle"}]
   end
 
   defp deps do

@@ -3,7 +3,6 @@ defmodule SlackThrottle.Queue.Registry do
 
   use GenServer
   alias SlackThrottle.Queue.{Supervisor, Worker}
-  require Logger
 
   @call_timeout Application.get_env(:slack_throttle, :enqueue_sync_timeout)
 
@@ -38,27 +37,23 @@ defmodule SlackThrottle.Queue.Registry do
   end
 
   def handle_info({:DOWN, ref, :process, _pid, _reason}, {queues, refs}) do
-    Logger.debug "handle_info down"
     {token, refs} = Map.pop(refs, ref)
     queues = Map.delete(queues, token)
     {:noreply, {queues, refs}}
   end
 
-  def handle_info(msg, state) do
-    Logger.debug "handle_info #{inspect msg}"
+  def handle_info(_msg, state) do
     {:noreply, state}
   end
 
   defp get_or_create_queue(token, queues, refs) do
     if Map.has_key?(queues, token) do
       q = Map.fetch!(queues, token)
-      Logger.debug "found running queue proccess for token #{token}"
       {q, queues, refs}
     else
       {:ok, q} = Supervisor.start_queue
       ref = Process.monitor(q)
       refs = Map.put(refs, ref, token)
-      Logger.debug "creating new queue proccess for token #{token}"
       qs = Map.put(queues, token, q)
       {q, qs, refs}
     end

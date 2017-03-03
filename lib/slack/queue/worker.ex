@@ -2,7 +2,6 @@ defmodule SlackThrottle.Queue.Worker do
   @moduledoc false
 
   use GenServer
-  require Logger
 
   @api_throttle Application.get_env(:slack_throttle, :api_throttle)
   @call_timeout Application.get_env(:slack_throttle, :enqueue_sync_timeout)
@@ -41,13 +40,10 @@ defmodule SlackThrottle.Queue.Worker do
 
   def handle_info(:work, {0, []} = state), do: {:stop, :normal, state}
   def handle_info(:work, {ttl, []}) do
-    Logger.debug ":work [] ttl #{ttl}"
     Process.send_after(self(), :work, @api_throttle)
     {:noreply, {ttl - 1, []}}
   end
-  def handle_info(:work, {ttl, [h | t] = q}) do
-    Logger.debug ":work [#{Enum.count q}] ttl #{ttl}"
-
+  def handle_info(:work, {_ttl, [h | t]}) do
     {from, {mod, fun, args}} = h
     res = apply(mod, fun, args)
     if from != nil, do: GenServer.reply(from, res)

@@ -6,14 +6,14 @@ defmodule SlackThrottleTest do
   @request_time 100
 
   test "first queued job starts immediately" do
-    s = self
-    Queue.enqueue_cast(random_token, fn -> send(s, :first_cast) end)
+    s = self()
+    Queue.enqueue_cast(random_token(), fn -> send(s, :first_cast) end)
     assert_receive :first_cast, @request_time
   end
 
   test "queue is rate limited for token" do
-    token = random_token
-    s = self
+    token = random_token()
+    s = self()
     Queue.enqueue_cast(token, fn -> send(s, :first_cast) end)
     Queue.enqueue_cast(token, fn -> send(s, :second_cast) end)
     Queue.enqueue_cast(token, fn -> send(s, :third_cast) end)
@@ -22,16 +22,16 @@ defmodule SlackThrottleTest do
   end
 
   test "queue is not rate limited for different tokens" do
-    s = self
-    Queue.enqueue_cast(random_token, fn -> send(s, :first_cast) end)
-    Queue.enqueue_cast(random_token, fn -> send(s, :second_cast) end)
+    s = self()
+    Queue.enqueue_cast(random_token(), fn -> send(s, :first_cast) end)
+    Queue.enqueue_cast(random_token(), fn -> send(s, :second_cast) end)
     assert_receive :first_cast, @request_time
     assert_receive :second_cast, @request_time
   end
 
   test "queue calls are prioritized over casts" do
-    token = random_token
-    s = self
+    token = random_token()
+    s = self()
     Queue.enqueue_cast(token, fn -> send(s, :first_cast) end)
     Queue.enqueue_cast(token, fn -> send(s, :second_cast) end)
     Queue.enqueue_cast(token, fn -> send(s, :third_cast) end)
@@ -51,12 +51,12 @@ defmodule SlackThrottleTest do
   end
 
   test "api auth responds and fails" do
-    res = API.auth_test(random_token)
+    res = API.auth_test(random_token())
     assert res["ok"] == false
   end
 
   test "api broadcast returns ok" do
-    res = API.auth_test(random_token, %{}, :cast)
+    res = API.auth_test(random_token(), %{}, :cast)
     assert res == :ok
   end
 
