@@ -11,7 +11,7 @@ defmodule SlackThrottle.HTTP do
 
     res = Queue.enqueue_call(
       token,
-      __MODULE__, :get!, [method, headers, [params: params]]
+      __MODULE__, :get!, [method, headers(), [params: params]]
     )
     res.body
   end
@@ -22,7 +22,7 @@ defmodule SlackThrottle.HTTP do
 
     Queue.enqueue_cast(
       token,
-      __MODULE__, :get!, [method, headers, [params: params]]
+      __MODULE__, :get!, [method, headers(), [params: params]]
     )
   end
 

@@ -42,7 +42,7 @@ defmodule SlackThrottle.Queue.Worker do
   def handle_info(:work, {0, []} = state), do: {:stop, :normal, state}
   def handle_info(:work, {ttl, []}) do
     Logger.debug ":work [] ttl #{ttl}"
-    Process.send_after(self, :work, @api_throttle)
+    Process.send_after(self(), :work, @api_throttle)
     {:noreply, {ttl - 1, []}}
   end
   def handle_info(:work, {ttl, [h | t] = q}) do
@@ -52,11 +52,11 @@ defmodule SlackThrottle.Queue.Worker do
     res = apply(mod, fun, args)
     if from != nil, do: GenServer.reply(from, res)
 
-    Process.send_after(self, :work, @api_throttle)
+    Process.send_after(self(), :work, @api_throttle)
     {:noreply, {@idle, t}}
   end
 
-  defp set_ttl_if_inactive(-1), do: send(self, :work) && @idle
+  defp set_ttl_if_inactive(-1), do: send(self(), :work) && @idle
   defp set_ttl_if_inactive(ttl), do: ttl
 
   defp jobsort({nil, _fun_a}, {nil, _fun_b}), do: true # cast cast
