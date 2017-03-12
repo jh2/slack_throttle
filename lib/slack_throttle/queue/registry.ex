@@ -4,10 +4,11 @@ defmodule SlackThrottle.Queue.Registry do
   use GenServer
   alias SlackThrottle.Queue.{Supervisor, Worker}
 
+  @name SlackThrottle.Queue.Registry
   @call_timeout Application.get_env(:slack_throttle, :enqueue_sync_timeout)
 
-  def start_link(name) do
-    GenServer.start_link(__MODULE__, :ok, name: name)
+  def start_link do
+    GenServer.start_link(__MODULE__, :ok, name: @name)
   end
 
   def enqueue_cast(server, token, mod, fun, args) do
