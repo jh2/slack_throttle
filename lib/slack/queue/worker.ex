@@ -5,7 +5,6 @@ defmodule SlackThrottle.Queue.Worker do
 
   @api_throttle Application.get_env(:slack_throttle, :api_throttle)
   @call_timeout Application.get_env(:slack_throttle, :enqueue_sync_timeout)
-  @idle 1
 
   def start_link do
     GenServer.start_link(__MODULE__, :ok)
@@ -22,38 +21,31 @@ defmodule SlackThrottle.Queue.Worker do
 
 
   def init(:ok) do
-    state = {-1, []}
+    state = {:init, []}
     {:ok, state}
   end
 
-  def handle_call({:run, fun}, from, {ttl, q}) do
-    ttl = set_ttl_if_inactive(ttl)
+  def handle_call({:run, fun}, from, {status, q}) do
+    if status == :init, do: send(self(), :work)
     q = q ++ [{from, fun}] |> Enum.sort(&jobsort/2)
-    {:noreply, {ttl, q}}
+    {:noreply, {:active, q}}
   end
 
-  def handle_cast({:add, fun}, {ttl, q}) do
-    ttl = set_ttl_if_inactive(ttl)
+  def handle_cast({:add, fun}, {status, q}) do
+    if status == :init, do: send(self(), :work)
     q = q ++ [{nil, fun}]
-    {:noreply, {ttl, q}}
+    {:noreply, {:active, q}}
   end
 
-  def handle_info(:work, {0, []} = state), do: {:stop, :normal, state}
-  def handle_info(:work, {ttl, []}) do
-    Process.send_after(self(), :work, @api_throttle)
-    {:noreply, {ttl - 1, []}}
-  end
-  def handle_info(:work, {_ttl, [h | t]}) do
+  def handle_info(:work, {:active, []} = state), do: {:stop, :normal, state}
+  def handle_info(:work, {:active, [h | t]}) do
     {from, {mod, fun, args}} = h
     res = apply(mod, fun, args)
     if from != nil, do: GenServer.reply(from, res)
 
     Process.send_after(self(), :work, @api_throttle)
-    {:noreply, {@idle, t}}
+    {:noreply, {:active, t}}
   end
-
-  defp set_ttl_if_inactive(-1), do: send(self(), :work) && @idle
-  defp set_ttl_if_inactive(ttl), do: ttl
 
   defp jobsort({nil, _fun_a}, {nil, _fun_b}), do: true # cast cast
   defp jobsort({_from_a, _fun_a}, {nil, _fun_b}), do: true # call cast
