@@ -6,8 +6,13 @@ defmodule SlackThrottle.Queue.Worker do
   @api_throttle Application.get_env(:slack_throttle, :api_throttle)
   @call_timeout Application.get_env(:slack_throttle, :enqueue_sync_timeout)
 
-  def start_link do
-    GenServer.start_link(__MODULE__, :ok)
+  def start_link(token) do
+    name = via_tuple(token)
+    GenServer.start_link(__MODULE__, :ok, name: name)
+  end
+
+  def via_tuple(token) do
+    {:via, Registry, {SlackThrottle.Registry, token}}
   end
 
   def enqueue_cast(server, fun) do

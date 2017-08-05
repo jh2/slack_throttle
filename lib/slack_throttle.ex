@@ -12,7 +12,7 @@ defmodule SlackThrottle do
     children = [
       # Starts a worker by calling: SlackThrottle.Worker.start_link(arg1, arg2, arg3)
       # worker(SlackThrottle.Worker, [arg1, arg2, arg3]),
-      worker(SlackThrottle.Queue.Registry, []),
+      supervisor(Registry, [:unique, SlackThrottle.Registry]),
       supervisor(SlackThrottle.Queue.Supervisor, [])
     ]
 

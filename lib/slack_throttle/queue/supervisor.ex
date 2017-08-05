@@ -9,8 +9,8 @@ defmodule SlackThrottle.Queue.Supervisor do
     Supervisor.start_link(__MODULE__, :ok, name: @name)
   end
 
-  def start_queue do
-    Supervisor.start_child(@name, [])
+  def start_queue(token) do
+    Supervisor.start_child(@name, [token])
   end
 
   def init(:ok) do
